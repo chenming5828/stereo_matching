@@ -76,7 +76,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cost.cpp" />
+    <ClCompile Include="GM.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Solver.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Cost.h" />
+    <ClInclude Include="GM.h" />
+    <ClInclude Include="Solver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
