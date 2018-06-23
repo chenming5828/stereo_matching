@@ -1,7 +1,7 @@
 #pragma once
 
-#include <core/core.hpp>
+#include "global.h"
 
 
-float SAD(cv::Mat ll, cv::Mat rr, cv::Point l_pt, unsigned int disp, unsigned win_w, unsigned win_h);
-
+float SAD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w);
+float SSD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w);

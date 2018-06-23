@@ -76,15 +76,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Cost.cpp" />
+    <ClCompile Include="cost.cpp" />
     <ClCompile Include="GM.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Solver.cpp" />
+    <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Cost.h" />
+    <ClInclude Include="cost.h" />
+    <ClInclude Include="global.h" />
     <ClInclude Include="GM.h" />
     <ClInclude Include="Solver.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

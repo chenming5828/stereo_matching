@@ -1,26 +1,26 @@
 #pragma once
 
-#include <iostream>
-#include <core/core.hpp>
-#include <highgui/highgui.hpp>
-
-#include "Cost.h"
+#include "global.h"
+#include "cost.h"
 
 
-using namespace cv;
+const uchar MAX_DISP = 31;
+const uchar INVALID_DISP = MAX_DISP + 1;
+const uchar WIN_H = 3;
+const uchar WIN_W = 5;
 
-const unsigned int MAX_DISP = 128;
 
 class Solver
 {
 public:
 	Solver();
-	void Show_disp();
-	virtual void Process(Mat &ll, Mat &rr);
-	virtual ~Solver();
+	Solver(Mat &ll, Mat &rr);
+	void Show_disp(); 
+	virtual void Process();
 
 protected:
+	Mat ll, rr;
 	Mat disp, disp_float, disp_float_colored;
-
+	uint16_t img_w, img_h;
 };
 

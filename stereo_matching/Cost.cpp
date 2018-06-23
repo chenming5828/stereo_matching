@@ -1,27 +1,51 @@
-#include "Cost.h"
+#include "cost.h"
 
 
-float SAD(cv::Mat ll, cv::Mat rr, cv::Point l_pt, unsigned int disp, unsigned win_w, unsigned win_h)
+float SAD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w)
 {
 	uchar *ll_ptr = NULL, *rr_ptr = NULL;
-	unsigned int h = 0, w_l = 0, w_r = 0;
+	uint16_t y = 0, x_l = 0, x_r = 0;
 	float cost = 0;
-	for (int i = -win_h / 2; i < win_h/2; i++)
+	for (char i = -win_h / 2; i <= win_h/2; i++)
 	{
-		h = MAX(l_pt.y + i, 0);		// check border
-		h = MIN(h, ll.rows);
-		ll_ptr = ll.ptr<uchar>(h);
-		rr_ptr = rr.ptr<uchar>(h);
-		for (int j = -win_w / 2; j < win_w / 2; j++)
+		y = MAX(l_pt.y + i, 0);		// check border
+		y = MIN(y, ll.rows - 1);
+		ll_ptr = ll.ptr<uchar>(y);
+		rr_ptr = rr.ptr<uchar>(y); 
+		for (char j = -win_w / 2; j <= win_w / 2; j++)
 		{
-			w_l = MAX(l_pt.x + j, 0);
-			w_l = MIN(w_l, ll.cols);
-			w_r = MAX(l_pt.x + j - disp, 0);
-			cost += abs(ll_ptr[w_l] - rr_ptr[w_r]);
+			x_l = MAX(l_pt.x + j, 0);
+			x_l = MIN(x_l, ll.cols);
+			x_r = MAX(l_pt.x + j - disp, 0);
+			cost += abs(ll_ptr[x_l] - rr_ptr[x_r]);
 		}
 	}
-	ll_ptr = NULL;
-	rr_ptr = NULL;
+	ll_ptr = rr_ptr = NULL;
+	cost /= (win_w * win_h);
+	return cost;
+}
+
+
+float SSD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w)
+{
+	uchar *ll_ptr = NULL, *rr_ptr = NULL;
+	uint16_t y = 0, x_l = 0, x_r = 0;
+	float cost = 0;
+	for (uchar i = -win_h / 2; i <= win_h / 2; i++)
+	{
+		y = MAX(l_pt.y + i, 0);		// check border
+		y = MIN(y, ll.rows - 1);
+		ll_ptr = ll.ptr<uchar>(y);
+		rr_ptr = rr.ptr<uchar>(y);
+		for (uchar j = -win_w / 2; j <= win_w / 2; j++)
+		{
+			x_l = MAX(l_pt.x + j, 0);
+			x_l = MIN(x_l, ll.cols);
+			x_r = MAX(l_pt.x + j - disp, 0);
+			cost += (ll_ptr[x_l] - rr_ptr[x_r]) * (ll_ptr[x_l] - rr_ptr[x_r]);
+		}
+	}
+	ll_ptr = rr_ptr = NULL;
 	cost /= (win_w * win_h);
 	return cost;
 }

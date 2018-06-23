@@ -1,41 +1,25 @@
 #include "GM.h"
 
 
-GM::GM(unsigned int img_w, unsigned int img_h)
-{
-	disp.create(img_w, img_h, CV_8UC1);
-	for (int i = 0; i < disp.rows; i++)
-	{
-		uchar* ptr = disp.ptr<uchar>(i);
-		for (int j = 0; j < disp.cols; j++)
-			ptr[j] = MAX_DISP;
-	}
-	//for (int i = 0; i < disp.rows; i++)
-	//{
-	//	uchar* ptr = disp.ptr<uchar>(i);
-	//	for (int j = 0; j < disp.cols; j++)
-	//		std::cout << (int)ptr[j];
-	//}
-	disp_float.create(Size(img_w, img_h), CV_32FC(MAX_DISP));
-	disp_float_colored.create(Size(img_w, img_h), CV_32FC3);
-}
+GM::GM(Mat &ll, Mat &rr) : Solver(ll, rr)
+{}
 
 
-void GM::Process(Mat &ll, Mat &rr)
+void GM::Process()
 {
 	uchar *ptr = NULL;
-	unsigned int h = ll.rows, w = ll.cols, min_d = MAX_DISP;
+	uchar min_d = INVALID_DISP;
 	float cost = 0, min_cost = 32767;
-	for (unsigned int i = 0; i < h; i++)
+	for (uint16_t i = 0; i < img_h; i++)
 	{
 		ptr = disp.ptr<uchar>(i);
-		for (unsigned int j = 0; j < w; j++)
+		for (uint16_t j = 0; j < img_w; j++)
 		{
 			min_cost = 32767;
-			min_d = MAX_DISP;
-			for (int d = 0; d < MAX_DISP; d++)
+			min_d = INVALID_DISP;
+			for (uchar d = 0; d < MAX_DISP; d++)
 			{
-				cost = SAD(ll, rr, Point(j, i), d, 3, 3);
+				cost = SAD(ll, rr, Point(j, i), d, WIN_H, WIN_W);
 				if (cost < min_cost)
 				{
 					min_cost = cost;
@@ -43,11 +27,8 @@ void GM::Process(Mat &ll, Mat &rr)
 				}
 			}
 			ptr[j] = min_d;
+			//std::cout << min_cost << " " << (int)min_d << std::endl;
 		}
 	}
 	ptr = NULL;
 }
-
-
-GM::~GM()
-{}

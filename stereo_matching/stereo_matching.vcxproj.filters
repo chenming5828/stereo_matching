@@ -24,7 +24,10 @@
     <ClCompile Include="GM.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Cost.cpp">
+    <ClCompile Include="utils.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="cost.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,7 +38,13 @@
     <ClInclude Include="GM.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Cost.h">
+    <ClInclude Include="global.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="cost.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
