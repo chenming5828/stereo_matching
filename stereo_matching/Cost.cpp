@@ -15,7 +15,7 @@ float SAD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w)
 		for (char j = -win_w / 2; j <= win_w / 2; j++)
 		{
 			x_l = MAX(l_pt.x + j, 0);
-			x_l = MIN(x_l, ll.cols);
+			x_l = MIN(x_l, ll.cols - 1);
 			x_r = MAX(l_pt.x + j - disp, 0);
 			cost += abs(ll_ptr[x_l] - rr_ptr[x_r]);
 		}

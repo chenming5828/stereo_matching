@@ -43,7 +43,7 @@ void Solver::Show_disp()
 
 	namedWindow("disp_map", 0);
 	imshow("disp_map", debug_view);
-	//imwrite("example/result_sad.jpeg", debug_view);
+	//imwrite("example/result_sgm_sad.jpeg", debug_view);
 
 	waitKey();
 	destroyWindow("disp_map");

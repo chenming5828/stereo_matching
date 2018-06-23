@@ -79,6 +79,7 @@
     <ClCompile Include="cost.cpp" />
     <ClCompile Include="GM.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SGM.cpp" />
     <ClCompile Include="Solver.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
@@ -86,6 +87,7 @@
     <ClInclude Include="cost.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="GM.h" />
+    <ClInclude Include="SGM.h" />
     <ClInclude Include="Solver.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

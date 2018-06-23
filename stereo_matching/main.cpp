@@ -1,5 +1,6 @@
 #include "global.h"
 #include "GM.h"
+#include "SGM.h"
 #include "utils.h"
 
 
@@ -14,7 +15,8 @@ int main()
 	//imshow("right", rr);
 	//waitKey();
 
-	Solver *sv = new GM(ll, rr);
+	//Solver *sv = new GM(ll, rr);
+	Solver *sv = new SGM(ll, rr);
 
 	std::cout << "waiting ... " << std::endl;
 	double be = get_cur_ms();
@@ -24,6 +26,7 @@ int main()
 	std::cout << "time cost: " << en - be << " ms" << std::endl;
 	sv->Show_disp();
 
-	std::cin.get();
+
+	//std::cin.get();
 	return 0;
 }
