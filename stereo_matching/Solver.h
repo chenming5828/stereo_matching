@@ -6,8 +6,8 @@
 
 const uchar MAX_DISP = 31;
 const uchar INVALID_DISP = MAX_DISP + 1;
-const uchar WIN_H = 3;
-const uchar WIN_W = 5;
+const uchar WIN_H = 5;
+const uchar WIN_W = 9;
 
 
 class Solver
