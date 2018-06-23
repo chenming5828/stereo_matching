@@ -26,7 +26,6 @@ int main()
 	std::cout << "time cost: " << en - be << " ms" << std::endl;
 	sv->Show_disp();
 
-
 	//std::cin.get();
 	return 0;
 }

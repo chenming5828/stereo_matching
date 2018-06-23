@@ -4,9 +4,9 @@
 #include "cost.h"
 
 
-const uchar MAX_DISP = 31;
+const uchar MAX_DISP = 32;
 const uchar INVALID_DISP = MAX_DISP + 1;
-const uchar WIN_H = 5;
+const uchar WIN_H = 7;
 const uchar WIN_W = 9;
 
 

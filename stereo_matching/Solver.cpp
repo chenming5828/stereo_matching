@@ -30,7 +30,7 @@ void Solver::Show_disp()
 		uchar* ptr = disp.ptr<uchar>(i);
 		for (int j = 0; j < img_w; j++)
 		{
-			ptr[j] *= 256 / INVALID_DISP;		// for better observation
+			ptr[j] *= 255 / (MAX_DISP - 1);		// for better observation
 		}
 	}
 
