@@ -20,6 +20,10 @@ Solver::Solver(Mat &ll, Mat &rr)
 	}
 	disp_float.create(img_h, img_w, CV_32FC(INVALID_DISP));
 	disp_float_colored.create(img_h, img_w, CV_32FC3);
+
+	// dsi
+	cost = new float[img_h * img_w * MAX_DISP];
+	memset(cost, 65536, sizeof(cost));
 }
 
 
@@ -45,6 +49,7 @@ void Solver::Show_disp()
 	imshow("disp_map", debug_view);
 	//imwrite("example/result_sgm.jpeg", debug_view);
 	//imwrite("example/result_sgm.png", debug_view);
+	//imwrite("example/uni_sgm.png", debug_view);
 
 	waitKey();
 	destroyWindow("disp_map");
@@ -54,4 +59,28 @@ void Solver::Show_disp()
 void Solver::Process()
 {
 	std::cout << "Class Solver does nothing!" << std::endl;
+}
+
+
+void Solver::Build_dsi()
+{
+	for (uint16_t i = 0; i < img_h; i++)
+	{
+		for (uint16_t j = 0; j < img_w; j++)
+		{
+			for (uchar d = 0; d < MAX_DISP; d++)
+			{
+				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				cost[index] = SSD(ll, rr, Point(j, i), d, WIN_H, WIN_W);
+				//std::cout << "[" << i << ", " << j << ", " << (int)d << "]:\t" <<  cost[index];
+				//std::cin.get();
+			}
+		}
+	}
+}
+
+
+Solver::~Solver()
+{
+	delete[] cost;
 }

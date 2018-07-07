@@ -3,9 +3,6 @@
 
 SGM::SGM(Mat &ll, Mat &rr) : Solver(ll, rr)
 {
-	cost = new float[img_h * img_w * MAX_DISP];
-	sum_of_cost = new float[img_h * img_w * MAX_DISP];
-
 	L1 = new float[img_h * img_w * MAX_DISP];
 	L2 = new float[img_h * img_w * MAX_DISP];
 	L3 = new float[img_h * img_w * MAX_DISP];
@@ -29,8 +26,6 @@ SGM::SGM(Mat &ll, Mat &rr) : Solver(ll, rr)
 	P1 = 10;
 	P2 = 100;
 
-	memset(cost, 65536, sizeof(cost));
-	memset(sum_of_cost, 65536, sizeof(sum_of_cost));
 	memset(L1, 65536, sizeof(L1));
 	memset(L2, 65536, sizeof(L2));
 	memset(L3, 65536, sizeof(L3));
@@ -56,19 +51,7 @@ SGM::SGM(Mat &ll, Mat &rr) : Solver(ll, rr)
 void SGM::Process()
 {
 	// build dsi
-	for (uint16_t i = 0; i < img_h; i++)
-	{
-		for (uint16_t j = 0; j < img_w; j++)
-		{
-			for (uchar d = 0; d < MAX_DISP; d++)
-			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
-				cost[index] = SSD(ll, rr, Point(j, i), d, WIN_H, WIN_W);
-				//std::cout << "[" << i << ", " << j << ", " << (int)d << "]:\t" <<  cost[index];
-				//std::cin.get();
-			}
-		}
-	}
+	Build_dsi();
 
 	 //build L1: left -> right
 	for (uint16_t i = 0; i < img_h; i++)
@@ -355,8 +338,8 @@ void SGM::Process()
 	
 	// cost aggregation
 	uchar *ptr = NULL;
-	float min_cost = 65535;
-	uchar min_d = INVALID_DISP;
+	float min_cost = 65535, sec_min_cost = 65535;
+	uchar min_d = INVALID_DISP, sec_min_d = INVALID_DISP;
 	for (uint16_t i = 0; i < img_h; i++)
 	{
 		ptr = disp.ptr<uchar>(i);
@@ -366,21 +349,39 @@ void SGM::Process()
 			for (uchar d = 0; d < MAX_DISP; d++)
 			{
 				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
-				sum_of_cost[index] = L1[index] + L2[index] + L3[index] + L4[index];
+				cost[index] = L1[index] + L2[index] + L3[index] + L4[index];
 				//sum_of_cost[index] = L1[index];
 				if (USE_8_PATH)
 				{
-					sum_of_cost[index] +=(L5[index] + L6[index] + L7[index] + L8[index]);
+					cost[index] += (L5[index] + L6[index] + L7[index] + L8[index]);
 					//sum_of_cost[index] = L8[index];
 				}
 				// wta
-				if (sum_of_cost[index] < min_cost)
+				if (cost[index] < min_cost)
 				{
-					min_cost = sum_of_cost[index];
+					min_cost = cost[index];
 					min_d = d;
 				}
 			}
-			ptr[j] = min_d;
+			// unique check
+			sec_min_cost = 65535;
+			for (uchar d = 0; d < MAX_DISP; d++)
+			{
+				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				if (cost[index] < sec_min_cost && cost[index] != min_cost)
+				{
+					sec_min_cost = cost[index];
+					sec_min_d = d;
+				}
+			}
+			if (min_cost / sec_min_cost > UNIQUE_RATIO && abs(min_d - sec_min_d) > 2)
+			{
+				ptr[j] = INVALID_DISP;
+			}
+			else
+			{
+				ptr[j] = min_d;
+			}
 		}
 	}
 	ptr = NULL;
@@ -389,8 +390,6 @@ void SGM::Process()
 
 SGM::~SGM()
 {
-	delete[] cost;
-	delete[] sum_of_cost;
 	delete[] L1;
 	delete[] L2;
 	delete[] L3;
