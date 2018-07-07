@@ -30,7 +30,7 @@ void Solver::Show_disp()
 		uchar* ptr = disp.ptr<uchar>(i);
 		for (int j = 0; j < img_w; j++)
 		{
-			ptr[j] *= 255 / (MAX_DISP - 1);		// for better observation
+			ptr[j] *= (256 / (MAX_DISP));		// for better observation
 		}
 	}
 
@@ -43,8 +43,8 @@ void Solver::Show_disp()
 
 	namedWindow("disp_map", 0);
 	imshow("disp_map", debug_view);
-	//imwrite("example/result_sgm_sad.jpeg", debug_view);
-	imwrite("example/test.jpeg", debug_view);
+	//imwrite("example/result_sgm.jpeg", debug_view);
+	//imwrite("example/result_sgm.png", debug_view);
 
 	waitKey();
 	destroyWindow("disp_map");
