@@ -45,11 +45,12 @@ void Solver::Show_disp()
 	tmp = debug_view(Rect(0, img_h - 1, img_w, img_h));
 	disp.copyTo(tmp);
 
-	namedWindow("disp_map", 0);
+	namedWindow("disp_map", 1);
 	imshow("disp_map", debug_view);
 	//imwrite("example/result_sgm.jpeg", debug_view);
 	//imwrite("example/result_sgm.png", debug_view);
 	//imwrite("example/uni_sgm.png", debug_view);
+	imwrite("example/test.png", debug_view);
 
 	waitKey();
 	destroyWindow("disp_map");
@@ -64,11 +65,12 @@ void Solver::Process()
 
 void Solver::Build_dsi()
 {
-	for (uint16_t i = 0; i < img_h; i++)
+#pragma omp parallel for
+	for (int i = 0; i < img_h; i++)
 	{
-		for (uint16_t j = 0; j < img_w; j++)
+		for (int j = 0; j < img_w; j++)
 		{
-			for (uchar d = 0; d < MAX_DISP; d++)
+			for (int d = 0; d < MAX_DISP; d++)
 			{
 				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				cost[index] = SSD(ll, rr, Point(j, i), d, WIN_H, WIN_W);

@@ -54,13 +54,14 @@ void SGM::Process()
 	Build_dsi();
 
 	 //build L1: left -> right
-	for (uint16_t i = 0; i < img_h; i++)
+#pragma omp parallel for
+	for (int i = 0; i < img_h; i++)
 	{
-		for (uint16_t j = 0; j < img_w; j++)
+		for (int j = 0; j < img_w; j++)
 		{
 			// DP
 			float minL1 = 65535;
-			for (uchar d = 0; d < MAX_DISP; d++)
+			for (int d = 0; d < MAX_DISP; d++)
 			{
 				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				if (j == 0)		//init
@@ -89,13 +90,14 @@ void SGM::Process()
 	}
 
 	// build L2: right -> left
-	for (uint16_t i = 0; i < img_h; i++)
+#pragma omp parallel for
+	for (int i = 0; i < img_h; i++)
 	{
-		for (uint16_t j = img_w - 1; j != 65535; j--)
+		for (int j = img_w - 1; j >=0; j--)
 		{
 			// DP
 			float minL2 = 65535;
-			for (uchar d = 0; d < MAX_DISP; d++)
+			for (int d = 0; d < MAX_DISP; d++)
 			{
 				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				if (j == img_w - 1)		//init
@@ -124,13 +126,14 @@ void SGM::Process()
 	}
 
 	// build L3: top -> down
-	for (uint16_t i = 0; i < img_h; i++)
+#pragma omp parallel for
+	for (int i = 0; i < img_h; i++)
 	{
-		for (uint16_t j = 0; j < img_w; j++)
+		for (int j = 0; j < img_w; j++)
 		{
 			// DP
 			float minL3 = 65535;
-			for (uchar d = 0; d < MAX_DISP; d++)
+			for (int d = 0; d < MAX_DISP; d++)
 			{
 				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				if (i == 0)		//init
@@ -159,13 +162,14 @@ void SGM::Process()
 	}
 
 	// build L4: down -> top
-	for (uint16_t i = img_h - 1; i != 65535; i--)
+#pragma omp parallel for
+	for (int i = img_h - 1; i >=0; i--)
 	{
-		for (uint16_t j = 0; j < img_w; j++)
+		for (int j = 0; j < img_w; j++)
 		{
 			// DP
 			float minL4 = 65535;
-			for (uchar d = 0; d < MAX_DISP; d++)
+			for (int d = 0; d < MAX_DISP; d++)
 			{
 				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				if (i == img_h - 1)		//init
@@ -196,13 +200,14 @@ void SGM::Process()
 	if (USE_8_PATH)
 	{
 		// build L5: lefttop -> rightdown
-		for (uint16_t i = 0; i < img_h; i++)
+#pragma omp parallel for
+		for (int i = 0; i < img_h; i++)
 		{
-			for (uint16_t j = 0; j < img_w; j++)
+			for (int j = 0; j < img_w; j++)
 			{
 				// DP
 				float minL5 = 65535;
-				for (uchar d = 0; d < MAX_DISP; d++)
+				for (int d = 0; d < MAX_DISP; d++)
 				{
 					uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 					if (i == 0 || j == 0)		//init
@@ -231,13 +236,14 @@ void SGM::Process()
 		}
 
 		// build L6: righttop -> leftdown
-		for (uint16_t i = 0; i < img_h; i++)
+#pragma omp parallel for
+		for (int i = 0; i < img_h; i++)
 		{
-			for (uint16_t j = img_w - 1; j != 65535; j--)
+			for (int j = img_w - 1; j >=0; j--)
 			{
 				// DP
 				float minL6 = 65535;
-				for (uchar d = 0; d < MAX_DISP; d++)
+				for (int d = 0; d < MAX_DISP; d++)
 				{
 					uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 					if (i== 0 || j == img_w - 1)		//init
@@ -266,13 +272,14 @@ void SGM::Process()
 		}
 
 		// build L7: leftdown -> righttop
-		for (uint16_t i = img_h - 1; i != 65535; i--)
+#pragma omp parallel for
+		for (int i = img_h - 1; i >=0; i--)
 		{
-			for (uint16_t j = 0; j < img_w; j++)
+			for (int j = 0; j < img_w; j++)
 			{
 				// DP
 				float minL7 = 65535;
-				for (uchar d = 0; d < MAX_DISP; d++)
+				for (int d = 0; d < MAX_DISP; d++)
 				{
 					uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 					if (i == img_h - 1 || j == 0)		//init
@@ -301,13 +308,14 @@ void SGM::Process()
 		}
 
 		// build L8: rightdown -> lefttop
-		for (uint16_t i = img_h - 1; i != 65535; i--)
+#pragma omp parallel for
+		for (int i = img_h - 1; i >=0; i--)
 		{
-			for (uint16_t j = img_w - 1; j != 65535; j--)
+			for (int j = img_w - 1; j >=0; j--)
 			{
 				// DP
 				float minL8 = 65535;
-				for (uchar d = 0; d < MAX_DISP; d++)
+				for (int d = 0; d < MAX_DISP; d++)
 				{
 					uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 					if (i == img_h - 1 || j == img_w - 1)		//init
@@ -350,11 +358,11 @@ void SGM::Process()
 			{
 				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				cost[index] = L1[index] + L2[index] + L3[index] + L4[index];
-				//sum_of_cost[index] = L1[index];
+				//cost[index] = L1[index];
 				if (USE_8_PATH)
 				{
 					cost[index] += (L5[index] + L6[index] + L7[index] + L8[index]);
-					//sum_of_cost[index] = L8[index];
+					//cost[index] = L1[index] + L2[index];
 				}
 				// wta
 				if (cost[index] < min_cost)

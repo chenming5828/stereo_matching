@@ -6,8 +6,8 @@
 
 int main()
 {
-	Mat ll = imread("example/ori_left.png", IMREAD_GRAYSCALE);
-	Mat rr = imread("example/ori_right.png", IMREAD_GRAYSCALE);
+	Mat ll = imread("example/kitti_left.png", IMREAD_GRAYSCALE);
+	Mat rr = imread("example/kitti_right.png", IMREAD_GRAYSCALE);
 	std::cout << "rows: " << ll.rows << ", cols: " << ll.cols << std::endl;
 	//namedWindow("left", 1);
 	//imshow("left", ll);
