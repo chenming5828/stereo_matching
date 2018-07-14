@@ -21,11 +21,12 @@ public:
 	virtual void Process();
 	void Build_dsi();
 	void Find_dsi_mean_max();
+	void Colormap();
 	virtual ~Solver();
 
 protected:
 	Mat ll, rr;
-	Mat disp, disp_float, disp_float_colored;
+	Mat disp,  colored_disp;
 	uint16_t img_w, img_h;
 	float *cost;
 	float *weight;

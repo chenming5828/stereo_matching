@@ -12,14 +12,7 @@ Solver::Solver(Mat &ll, Mat &rr)
 	img_w = ll.cols;
 	img_h = rr.rows;
 	disp.create(img_h, img_w, CV_8UC1);
-	for (int i = 0; i < img_h; i++)
-	{
-		uchar* ptr = disp.ptr<uchar>(i);
-		for (int j = 0; j < img_w; j++)
-			ptr[j] = INVALID_DISP;
-	}
-	disp_float.create(img_h, img_w, CV_32FC(INVALID_DISP));
-	disp_float_colored.create(img_h, img_w, CV_32FC3);
+	colored_disp.create(img_h, img_w, CV_8UC3);
 
 	// dsi
 	cost = new float[img_h * img_w * MAX_DISP];
@@ -45,21 +38,22 @@ Solver::Solver(Mat &ll, Mat &rr)
 
 void Solver::Show_disp()
 {
-	for (int i = 0; i < img_h; i++)
-	{
-		uchar* ptr = disp.ptr<uchar>(i);
-		for (int j = 0; j < img_w; j++)
-		{
-			ptr[j] *= (256 / (MAX_DISP));		// for better observation
-		}
-	}
+	// convert to RGB for better observation
+	Colormap();
 
 	Mat debug_view, tmp;
-	debug_view = debug_view.zeros(img_h * 2, img_w, CV_8UC1);
+	//debug_view = debug_view.zeros(img_h * 2, img_w, CV_8UC1);
+	//tmp = debug_view(Rect(0, 0, img_w, img_h));
+	//ll.copyTo(tmp);
+	//tmp = debug_view(Rect(0, img_h - 1, img_w, img_h));
+	//disp.copyTo(tmp);
+
+	debug_view = debug_view.zeros(img_h * 2, img_w, CV_8UC3);
 	tmp = debug_view(Rect(0, 0, img_w, img_h));
+	cvtColor(ll, ll, CV_GRAY2BGR);
 	ll.copyTo(tmp);
 	tmp = debug_view(Rect(0, img_h - 1, img_w, img_h));
-	disp.copyTo(tmp);
+	colored_disp.copyTo(tmp);
 
 	namedWindow("disp_map", 1);
 	imshow("disp_map", debug_view);
@@ -89,7 +83,7 @@ void Solver::Build_dsi()
 			for (int d = 0; d < MAX_DISP; d++)
 			{
 				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
-				//cost[index] = SSD(ll, rr, Point(j, i), d, WIN_H, WIN_W);
+				//cost[index] = SSD(ll, rr, Point(j, i), d, WIN_H, WIN_W, weight);
 				cost[index] = CT(ll, rr, Point(j, i), d, WIN_H, WIN_W, weight);
 
 				//std::cout << "[" << i << ", " << j << ", " << (int)d << "]:\t" <<  cost[index];
@@ -122,6 +116,63 @@ void Solver::Find_dsi_mean_max()
 	std::cout << "max_cost: " << max_cost << ", mean_cost: " << mean_cost << std::endl;
 	std::cin.get();
 
+}
+
+
+void  Solver::Colormap()
+{
+	uchar disp_value = 0;
+	for (int i = 0; i < disp.rows; i++)
+	{
+		for (int j = 0; j < disp.cols; j++)
+		{
+			disp_value = disp.at<uchar>(i, j);
+			if (disp_value == INVALID_DISP)
+			{
+				colored_disp.at<Vec3b>(i, j)[0] = 0;
+				colored_disp.at<Vec3b>(i, j)[1] = 0;
+				colored_disp.at<Vec3b>(i, j)[2] = 0;
+			}
+			else
+			{
+				disp_value *= (256 / (MAX_DISP));
+				if (disp_value <= 51)
+				{
+					colored_disp.at<Vec3b>(i, j)[0] = 255;
+					colored_disp.at<Vec3b>(i, j)[1] = disp_value * 5;
+					colored_disp.at<Vec3b>(i, j)[2] = 0;
+				}
+				else if (disp_value <= 102)
+				{
+					disp_value -= 51;
+					colored_disp.at<Vec3b>(i, j)[0] = 255 - disp_value * 5;
+					colored_disp.at<Vec3b>(i, j)[1] = 255;
+					colored_disp.at<Vec3b>(i, j)[2] = 0;
+				}
+				else if (disp_value <= 153)
+				{
+					disp_value -= 102;
+					colored_disp.at<Vec3b>(i, j)[0] = 0;
+					colored_disp.at<Vec3b>(i, j)[1] = 255;
+					colored_disp.at<Vec3b>(i, j)[2] = disp_value * 5;
+				}
+				else if (disp_value <= 204)
+				{
+					disp_value -= 153;
+					colored_disp.at<Vec3b>(i, j)[0] = 0;
+					colored_disp.at<Vec3b>(i, j)[1] = 255 - uchar(128.0*disp_value / 51.0 + 0.5);
+					colored_disp.at<Vec3b>(i, j)[2] = 255;
+				}
+				else
+				{
+					disp_value -= 204;
+					colored_disp.at<Vec3b>(i, j)[0] = 0;
+					colored_disp.at<Vec3b>(i, j)[1] = 127 - uchar(127.0*disp_value / 51.0 + 0.5);
+					colored_disp.at<Vec3b>(i, j)[2] = 255;
+				}
+			}
+		}
+	}
 }
 
 

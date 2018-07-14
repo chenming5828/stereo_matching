@@ -23,8 +23,8 @@ SGM::SGM(Mat &ll, Mat &rr) : Solver(ll, rr)
 		min_L8 = new float[img_h * img_w];
 	}
 
-	P1 = 20;
-	P2 = 100;
+	P1 = 10;
+	P2 = 80;
 
 	memset(L1, 65536, sizeof(L1));
 	memset(L2, 65536, sizeof(L2));
@@ -394,6 +394,10 @@ void SGM::Process()
 		}
 	}
 	ptr = NULL;
+
+	// speckle_filter
+	uint16_t maxsize = 750, maxdiff = 2;
+	filterSpeckles(disp, INVALID_DISP, maxsize, maxdiff);
 }
 
 

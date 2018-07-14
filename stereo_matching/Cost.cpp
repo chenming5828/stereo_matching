@@ -1,7 +1,7 @@
 #include "cost.h"
 
 
-float SAD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w)
+float SAD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w, float* weight)
 {
 	uchar *ll_ptr = NULL, *rr_ptr = NULL;
 	uint16_t y = 0, x_l = 0, x_r = 0;
@@ -17,7 +17,14 @@ float SAD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w)
 			x_l = MAX(l_pt.x + j, 0);
 			x_l = MIN(x_l, ll.cols - 1);
 			x_r = MAX(x_l - disp, 0);
-			cost += abs(ll_ptr[x_l] - rr_ptr[x_r]);
+			if (WEIGHTED_COST)
+			{
+				cost += abs(ll_ptr[x_l] - rr_ptr[x_r]) * weight[(i + win_h / 2) * win_w + (j + win_w / 2)];
+			}
+			else
+			{
+				cost += abs(ll_ptr[x_l] - rr_ptr[x_r]);
+			}
 		}
 	}
 	ll_ptr = rr_ptr = NULL;
@@ -25,7 +32,7 @@ float SAD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w)
 }
 
 
-float SSD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w)
+float SSD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w, float* weight)
 {
 	uchar *ll_ptr = NULL, *rr_ptr = NULL;
 	uint16_t y = 0, x_l = 0, x_r = 0;
@@ -41,7 +48,14 @@ float SSD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w)
 			x_l = MAX(l_pt.x + j, 0);
 			x_l = MIN(x_l, ll.cols - 1);
 			x_r = MAX(x_l - disp, 0);
-			cost += (ll_ptr[x_l] - rr_ptr[x_r]) * (ll_ptr[x_l] - rr_ptr[x_r]);
+			if (WEIGHTED_COST)
+			{
+				cost += (ll_ptr[x_l] - rr_ptr[x_r]) * (ll_ptr[x_l] - rr_ptr[x_r]) * weight[(i + win_h / 2) * win_w + (j + win_w / 2)];
+			}
+			else
+			{
+				cost += (ll_ptr[x_l] - rr_ptr[x_r]) * (ll_ptr[x_l] - rr_ptr[x_r]);
+			}
 		}
 	}
 	ll_ptr = rr_ptr = NULL;
