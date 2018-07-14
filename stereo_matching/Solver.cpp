@@ -24,6 +24,22 @@ Solver::Solver(Mat &ll, Mat &rr)
 	// dsi
 	cost = new float[img_h * img_w * MAX_DISP];
 	memset(cost, 65536, sizeof(cost));
+
+	if (WEIGHTED_COST)
+	{
+		weight = new float[WIN_H * WIN_W];
+#pragma omp parallel for
+		for (int i = 0; i < WIN_H; i++)
+		{
+			for (int j = 0; j < WIN_W; j++)
+			{
+				weight[i*WIN_W + j] = exp(((i - WIN_H / 2)*(i - WIN_H / 2) + (j - WIN_W / 2)*(j - WIN_W / 2)) / -25.0);
+				//std::cout << weight[i*WIN_W + j] << "\t";
+			}
+			//std::cout << std::endl;
+		}
+	}
+	//std::cin.get();
 }
 
 
@@ -74,7 +90,7 @@ void Solver::Build_dsi()
 			{
 				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				//cost[index] = SSD(ll, rr, Point(j, i), d, WIN_H, WIN_W);
-				cost[index] = CT(ll, rr, Point(j, i), d, WIN_H, WIN_W);
+				cost[index] = CT(ll, rr, Point(j, i), d, WIN_H, WIN_W, weight);
 
 				//std::cout << "[" << i << ", " << j << ", " << (int)d << "]:\t" <<  cost[index];
 				//std::cin.get();
@@ -112,4 +128,8 @@ void Solver::Find_dsi_mean_max()
 Solver::~Solver()
 {
 	delete[] cost;
+	if (WEIGHTED_COST)
+	{
+		delete[] weight;
+	}
 }

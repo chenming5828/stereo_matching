@@ -49,7 +49,7 @@ float SSD(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w)
 }
 
 
-uint16_t CT(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w)
+uint16_t CT(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w, float* weight)
 {
 	uchar *ll_ptr = NULL, *rr_ptr = NULL;
 	uint16_t y = 0, x_l = 0, x_r = 0;
@@ -67,6 +67,10 @@ uint16_t CT(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w)
 		rr_ptr = rr.ptr<uchar>(y);
 		for (char j = -win_w / 2; j <= win_w / 2; j++)
 		{
+			if (i == 0 && j == 0)
+				continue;
+			if (WEIGHTED_COST && weight[(i + win_h / 2) * win_w + (j + win_w / 2)] < 0.5)
+				continue;
 			x_l = MAX(l_pt.x + j, 0);
 			x_l = MIN(x_l, ll.cols - 1);
 			x_r = MAX(x_l - disp, 0);
