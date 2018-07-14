@@ -73,12 +73,39 @@ void Solver::Build_dsi()
 			for (int d = 0; d < MAX_DISP; d++)
 			{
 				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
-				cost[index] = SSD(ll, rr, Point(j, i), d, WIN_H, WIN_W);
+				//cost[index] = SSD(ll, rr, Point(j, i), d, WIN_H, WIN_W);
+				cost[index] = CT(ll, rr, Point(j, i), d, WIN_H, WIN_W);
+
 				//std::cout << "[" << i << ", " << j << ", " << (int)d << "]:\t" <<  cost[index];
 				//std::cin.get();
 			}
 		}
 	}
+}
+
+
+void Solver::Find_dsi_mean_max()
+{
+	double mean_cost = 0, max_cost = 0;
+	for (int i = 0; i < img_h; i++)
+	{
+		for (int j = 0; j < img_w; j++)
+		{
+			for (int d = 0; d < MAX_DISP; d++)
+			{
+				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				mean_cost += cost[index];
+				if (cost[index] > max_cost)
+				{
+					max_cost = cost[index];
+				}
+			}
+		}
+	}
+	mean_cost /= (img_h * img_w * MAX_DISP);
+	std::cout << "max_cost: " << max_cost << ", mean_cost: " << mean_cost << std::endl;
+	std::cin.get();
+
 }
 
 

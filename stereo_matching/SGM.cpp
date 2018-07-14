@@ -23,7 +23,7 @@ SGM::SGM(Mat &ll, Mat &rr) : Solver(ll, rr)
 		min_L8 = new float[img_h * img_w];
 	}
 
-	P1 = 10;
+	P1 = 20;
 	P2 = 100;
 
 	memset(L1, 65536, sizeof(L1));
@@ -52,6 +52,7 @@ void SGM::Process()
 {
 	// build dsi
 	Build_dsi();
+	//Find_dsi_mean_max();
 
 	 //build L1: left -> right
 #pragma omp parallel for

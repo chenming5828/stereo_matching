@@ -6,8 +6,8 @@
 
 const uchar MAX_DISP = 128;
 const uchar INVALID_DISP = MAX_DISP + 1;
-const uchar WIN_H = 5;
-const uchar WIN_W = 5;
+const uchar WIN_H = 7;
+const uchar WIN_W = 9;
 const float UNIQUE_RATIO = 0.8;
 
 
@@ -19,6 +19,7 @@ public:
 	void Show_disp(); 
 	virtual void Process();
 	void Build_dsi();
+	void Find_dsi_mean_max();
 	virtual ~Solver();
 
 protected:

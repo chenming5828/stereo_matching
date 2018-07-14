@@ -15,6 +15,7 @@ int main()
 	//imshow("right", rr);
 	//waitKey();
 
+
 	//Solver *sv = new GM(ll, rr);
 	Solver *sv = new SGM(ll, rr);
 
