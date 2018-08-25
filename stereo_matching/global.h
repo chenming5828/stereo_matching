@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <core/core.hpp>
 #include <highgui/highgui.hpp>
 #include <imgproc\imgproc.hpp>

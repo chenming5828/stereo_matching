@@ -22,6 +22,10 @@ public:
 	void Build_dsi();
 	void Find_dsi_mean_max();
 	void Colormap();
+	Mat get_disp() const
+	{
+		return disp;
+	}
 	virtual ~Solver();
 
 protected:

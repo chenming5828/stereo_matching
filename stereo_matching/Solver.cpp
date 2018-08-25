@@ -47,6 +47,7 @@ void Solver::Show_disp()
 			ptr[j] = INVALID_DISP;
 		}
 	}
+	imwrite("example/disp_grey.png", disp);
 	
 	// convert to RGB for better observation
 	Colormap();
@@ -67,10 +68,7 @@ void Solver::Show_disp()
 
 	namedWindow("disp_map", 1);
 	imshow("disp_map", debug_view);
-	//imwrite("example/result_sgm.jpeg", debug_view);
-	//imwrite("example/result_sgm.png", debug_view);
-	//imwrite("example/uni_sgm.png", debug_view);
-	imwrite("example/test.png", debug_view);
+	imwrite("example/disp_rgb.png", debug_view);
 
 	waitKey();
 	destroyWindow("disp_map");
