@@ -8,7 +8,7 @@ const uchar MAX_DISP = 128;
 const uchar INVALID_DISP = MAX_DISP + 1;
 const uchar WIN_H = 7;
 const uchar WIN_W = 9;
-const float UNIQUE_RATIO = 0.8;
+const float UNIQUE_RATIO = 0.9;
 const bool WEIGHTED_COST = 1;
 
 

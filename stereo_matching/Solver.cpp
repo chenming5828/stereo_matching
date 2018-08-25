@@ -38,6 +38,16 @@ Solver::Solver(Mat &ll, Mat &rr)
 
 void Solver::Show_disp()
 {
+	// left border invalid
+	for (int i = 0; i < disp.rows; i++)
+	{
+		uchar *ptr = disp.ptr<uchar>(i);
+		for(int j = 0; j < MAX_DISP; j++)
+		{
+			ptr[j] = INVALID_DISP;
+		}
+	}
+	
 	// convert to RGB for better observation
 	Colormap();
 
