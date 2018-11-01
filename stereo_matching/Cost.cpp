@@ -98,6 +98,33 @@ uint16_t CT(Mat &ll, Mat &rr, Point l_pt, uchar disp, uchar win_h, uchar win_w, 
 }
 
 
+uint64_t CT_pts(Mat &im, int u, int v, uchar win_h, uchar win_w, float* weight)
+{
+	uchar *ptr = NULL;
+	uint16_t y = 0, x = 0;
+	uint64_t value = 0;
+
+	uchar ctr_pixel = im.at<uchar>(v,u);
+
+	for (char i = -win_h / 2; i <= win_h / 2; i++)
+	{
+		y = MAX(v + i, 0);		// check border
+		y = MIN(y, im.rows - 1);
+		ptr = im.ptr<uchar>(y);
+		for (char j = -win_w / 2; j <= win_w / 2; j++)
+		{
+			if (WEIGHTED_COST && weight[(i + win_h / 2) * win_w + (j + win_w / 2)] < 0.5)
+				continue;
+			x = MAX(u + j, 0);
+			x = MIN(x, im.cols - 1);
+			value = (value | (ptr[x] > ctr_pixel)) << 1;
+		}
+	}
+	ptr = NULL;
+	return value;
+}
+
+
 uint16_t hamming_cost(uint64_t ct_l, uint64_t ct_r)
 {
 	uint64_t not_the_same = ct_l ^ ct_r;

@@ -5,14 +5,9 @@
 
 int main()
 {
-	Mat ll = imread("example/kitti_1_left.png", IMREAD_GRAYSCALE);
-	Mat rr = imread("example/kitti_1_right.png", IMREAD_GRAYSCALE);
+	Mat ll = imread("example/kitti_0_left.png", IMREAD_GRAYSCALE);
+	Mat rr = imread("example/kitti_0_right.png", IMREAD_GRAYSCALE);
 	std::cout << "rows: " << ll.rows << ", cols: " << ll.cols << std::endl;
-	//namedWindow("left", 1);
-	//imshow("left", ll);
-	//namedWindow("right", 1);
-	//imshow("right", rr);
-	//waitKey();
 
 	//Solver *sv = new GM(ll, rr);
 	Solver *sv = new SGM(ll, rr);
@@ -54,6 +49,28 @@ int main()
 
 	//Mat disp = imread("example/disp_grey_1.png", IMREAD_GRAYSCALE);
 	//Mat ll_rgb = imread("example/left_1.png");
+	//Mat disp_float(disp.rows, disp.cols, CV_32FC1, Scalar(0));
+
+	//for (int i = 0; i < disp.rows; i++)
+	//{
+	//	uchar *ptr = disp.ptr<uchar>(i);
+	//	float *ptr2 = disp_float.ptr<float>(i);
+	//	for (int j = 0; j < disp.cols; j++)
+	//	{
+	//		if (j > 0 && j < disp.cols - 1 && ptr[j] < 128 && ptr[j - 1] < 128 && ptr[j + 1] < 128 && ptr[j - 1] - 2 * ptr[j] + ptr[j + 1])
+	//		{
+
+	//			ptr2[j] = ptr[i] + (ptr[j - 1] - ptr[j + 1]) / (2 * (ptr[j - 1] - 2 * ptr[j] + ptr[j + 1]));
+	//		}
+	//		else
+	//		{
+	//			ptr2[j] = ptr[j];
+	//		}
+	//		printf("%f, ", ptr2[j]);
+	//	}
+	//	printf("\n");
+	//}
+	//std::cin.get();
 
 	//// read calibration
 	//std::ifstream in;

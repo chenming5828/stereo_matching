@@ -24,35 +24,18 @@ SGM::SGM(Mat &ll, Mat &rr) : Solver(ll, rr)
 	}
 
 	P1 = 10;
-	P2 = 80;
-
-	memset(L1, 65536, sizeof(L1));
-	memset(L2, 65536, sizeof(L2));
-	memset(L3, 65536, sizeof(L3));
-	memset(L4, 65536, sizeof(L4));
-	memset(min_L1, 65536, sizeof(min_L1));
-	memset(min_L2, 65536, sizeof(min_L2));
-	memset(min_L3, 65536, sizeof(min_L3));
-	memset(min_L4, 65536, sizeof(min_L4));
-	if (USE_8_PATH)
-	{
-		memset(L5, 65536, sizeof(L5));
-		memset(L6, 65536, sizeof(L6));
-		memset(L7, 65536, sizeof(L7));
-		memset(L8, 65536, sizeof(L8));
-		memset(min_L5, 65536, sizeof(min_L5));
-		memset(min_L6, 65536, sizeof(min_L6));
-		memset(min_L7, 65536, sizeof(min_L7));
-		memset(min_L8, 65536, sizeof(min_L8));
-	}
+	P2 = 100;
 }
 
 
 void SGM::Process()
 {
 	// build dsi
-	Build_dsi();
+	//Build_dsi();
 	//Find_dsi_mean_max();
+
+	Build_cost_table();
+	Build_dsi_from_table();
 
 	 //build L1: left -> right
 #pragma omp parallel for

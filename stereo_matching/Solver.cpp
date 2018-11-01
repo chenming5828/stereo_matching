@@ -16,7 +16,8 @@ Solver::Solver(Mat &ll, Mat &rr)
 
 	// dsi
 	cost = new float[img_h * img_w * MAX_DISP];
-	memset(cost, 65536, sizeof(cost));
+	cost_table_l = new uint64_t[img_h * img_w];
+	cost_table_r = new uint64_t[img_h * img_w];
 
 	if (WEIGHTED_COST)
 	{
@@ -50,14 +51,9 @@ void Solver::Show_disp()
 	imwrite("example/disp_grey.png", disp);
 	
 	// convert to RGB for better observation
-	Colormap();
+	Colormap();	
 
 	Mat debug_view, tmp;
-	//debug_view = debug_view.zeros(img_h * 2, img_w, CV_8UC1);
-	//tmp = debug_view(Rect(0, 0, img_w, img_h));
-	//ll.copyTo(tmp);
-	//tmp = debug_view(Rect(0, img_h - 1, img_w, img_h));
-	//disp.copyTo(tmp);
 
 	debug_view = debug_view.zeros(img_h * 2, img_w, CV_8UC3);
 	tmp = debug_view(Rect(0, 0, img_w, img_h));
@@ -96,6 +92,39 @@ void Solver::Build_dsi()
 
 				//std::cout << "[" << i << ", " << j << ", " << (int)d << "]:\t" <<  cost[index];
 				//std::cin.get();
+			}
+		}
+	}
+}
+
+
+void Solver::Build_cost_table()
+{
+#pragma omp parallel for
+	for (int i = 0; i < img_h; i++)
+	{
+		for (int j = 0; j < img_w; j++)
+		{
+			cost_table_l[i*img_w + j] = CT_pts(ll, j, i, WIN_H, WIN_W, weight);
+			cost_table_r[i*img_w + j] = CT_pts(rr, j, i, WIN_H, WIN_W, weight);
+		}
+	}
+}
+
+
+void Solver::Build_dsi_from_table()
+{
+#pragma omp parallel for
+	for (int i = 0; i < img_h; i++)
+	{
+		for (int j = 0; j < img_w; j++)
+		{
+			for (int d = 0; d < MAX_DISP; d++)
+			{
+				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				uint64_t ct_l = cost_table_l[i*img_w + j];
+				uint64_t ct_r = cost_table_r[i*img_w + MAX(j - d, 0)];
+				cost[index] = hamming_cost(ct_l, ct_r);
 			}
 		}
 	}

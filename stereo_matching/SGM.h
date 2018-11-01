@@ -3,7 +3,7 @@
 #include "Solver.h"
 
 
-const bool USE_8_PATH = 0;
+const bool USE_8_PATH = 1;
 
 
 class SGM : public Solver
