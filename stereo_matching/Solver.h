@@ -22,7 +22,7 @@ public:
 	void Build_dsi();
 	void Build_cost_table();
 	void Build_dsi_from_table();
-	void Find_dsi_mean_max();
+	float Find_dsi_mean_max();
 	void Colormap();
 	Mat get_disp() const
 	{

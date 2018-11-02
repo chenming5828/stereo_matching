@@ -131,7 +131,7 @@ void Solver::Build_dsi_from_table()
 }
 
 
-void Solver::Find_dsi_mean_max()
+float Solver::Find_dsi_mean_max()
 {
 	double mean_cost = 0, max_cost = 0;
 	for (int i = 0; i < img_h; i++)
@@ -151,8 +151,7 @@ void Solver::Find_dsi_mean_max()
 	}
 	mean_cost /= (img_h * img_w * MAX_DISP);
 	std::cout << "max_cost: " << max_cost << ", mean_cost: " << mean_cost << std::endl;
-	std::cin.get();
-
+	return mean_cost;
 }
 
 

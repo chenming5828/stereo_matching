@@ -36,6 +36,8 @@ void SGM::Process()
 
 	Build_cost_table();
 	Build_dsi_from_table();
+	P1 = Find_dsi_mean_max() / 2;
+	P2 = P1 * 10;
 
 	 //build L1: left -> right
 #pragma omp parallel for
