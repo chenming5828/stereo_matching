@@ -86,7 +86,7 @@ void Solver::Build_dsi()
 		{
 			for (int d = 0; d < MAX_DISP; d++)
 			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				//cost[index] = SSD(ll, rr, Point(j, i), d, WIN_H, WIN_W, weight);
 				cost[index] = CT(ll, rr, Point(j, i), d, WIN_H, WIN_W, weight);
 
@@ -121,7 +121,7 @@ void Solver::Build_dsi_from_table()
 		{
 			for (int d = 0; d < MAX_DISP; d++)
 			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				uint64_t ct_l = cost_table_l[i*img_w + j];
 				uint64_t ct_r = cost_table_r[i*img_w + MAX(j - d, 0)];
 				cost[index] = hamming_cost(ct_l, ct_r);
@@ -140,7 +140,7 @@ float Solver::Find_dsi_mean_max()
 		{
 			for (int d = 0; d < MAX_DISP; d++)
 			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				mean_cost += cost[index];
 				if (cost[index] > max_cost)
 				{
@@ -155,9 +155,69 @@ float Solver::Find_dsi_mean_max()
 }
 
 
+void Solver::cost_horizontal_filter(int win_size)
+{
+	for (int i = 0; i < img_h; i++)
+	{
+		for (int d = 0; d < MAX_DISP; d++)
+		{
+			float sum = 0;
+			int index = i * img_w * MAX_DISP + d;
+			// initialize
+			for (int k = 0; k < win_size; k++)
+			{
+				sum += cost[index];
+				index += MAX_DISP;
+			}
+			// box filter
+			for (int j = win_size/2; j < img_w - win_size/2; j++)
+			{
+				cost[i * img_w * MAX_DISP + j * MAX_DISP + d] = sum / win_size;
+				if (j < img_w - win_size / 2 - 1)
+				{
+					sum += cost[index];
+					sum -= cost[index - win_size * MAX_DISP];
+					index += MAX_DISP;
+				}
+			}
+		}
+	}
+}
+
+
+void Solver::cost_vertical_filter(int win_size)
+{
+	for (int j = 0; j < img_w; j++)
+	{
+		for (int d = 0; d < MAX_DISP; d++)
+		{
+			float sum = 0;
+			int index = j * MAX_DISP + d;
+			// initialize
+			for (int k = 0; k < win_size; k++)
+			{
+				sum += cost[index];
+				index += img_w * MAX_DISP;
+			}
+			// box filter
+			for (int i = win_size/2; i < img_h - win_size/2; i++)
+			{
+				cost[i * img_w * MAX_DISP + j * MAX_DISP + d] = sum / win_size;
+				if (i < img_h - win_size / 2 - 1)
+				{
+					sum += cost[index];
+					sum -= cost[index - win_size * img_w * MAX_DISP];
+					index += img_w * MAX_DISP;
+				}
+			}
+		}
+	}
+}
+
+
 void  Solver::Colormap()
 {
-	uchar disp_value = 0;
+	int disp_value = 0;
 	for (int i = 0; i < disp.rows; i++)
 	{
 		for (int j = 0; j < disp.cols; j++)

@@ -36,8 +36,8 @@ void SGM::Process()
 
 	Build_cost_table();
 	Build_dsi_from_table();
-	P1 = Find_dsi_mean_max() / 2;
-	P2 = P1 * 10;
+	cost_horizontal_filter(COST_WIN_W);
+	cost_vertical_filter(COST_WIN_H);
 
 	 //build L1: left -> right
 #pragma omp parallel for
@@ -46,17 +46,17 @@ void SGM::Process()
 		for (int j = 0; j < img_w; j++)
 		{
 			// DP
-			float minL1 = 65535;
+			float minL1 = FLT_MAX;
 			for (int d = 0; d < MAX_DISP; d++)
 			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				if (j == 0)		//init
 				{				
 					L1[index] = cost[index];
 				}
 				else
 				{
-					uint32_t index_L1_prev = i * img_w * MAX_DISP + (j - 1) * MAX_DISP;
+					int index_L1_prev = i * img_w * MAX_DISP + (j - 1) * MAX_DISP;
 					uchar d_sub_1 = MAX(d - 1, 0);
 					uchar d_plus_1 = MIN(d + 1, MAX_DISP - 1);
 					L1[index] = MIN(L1[index_L1_prev + d], L1[index_L1_prev + d_sub_1] + P1);
@@ -82,17 +82,17 @@ void SGM::Process()
 		for (int j = img_w - 1; j >=0; j--)
 		{
 			// DP
-			float minL2 = 65535;
+			float minL2 = FLT_MAX;
 			for (int d = 0; d < MAX_DISP; d++)
 			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				if (j == img_w - 1)		//init
 				{
 					L2[index] = cost[index];
 				}
 				else
 				{
-					uint32_t index_L2_prev = i * img_w * MAX_DISP + (j + 1) * MAX_DISP;
+					int index_L2_prev = i * img_w * MAX_DISP + (j + 1) * MAX_DISP;
 					uchar d_sub_1 = MAX(d - 1, 0);
 					uchar d_plus_1 = MIN(d + 1, MAX_DISP - 1);
 					L2[index] = MIN(L2[index_L2_prev + d], L2[index_L2_prev + d_sub_1] + P1);
@@ -118,17 +118,17 @@ void SGM::Process()
 		for (int j = 0; j < img_w; j++)
 		{
 			// DP
-			float minL3 = 65535;
+			float minL3 = FLT_MAX;
 			for (int d = 0; d < MAX_DISP; d++)
 			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				if (i == 0)		//init
 				{
 					L3[index] = cost[index];
 				}
 				else
 				{
-					uint32_t index_L3_prev = (i - 1) * img_w * MAX_DISP + j * MAX_DISP;
+					int index_L3_prev = (i - 1) * img_w * MAX_DISP + j * MAX_DISP;
 					uchar d_sub_1 = MAX(d - 1, 0);
 					uchar d_plus_1 = MIN(d + 1, MAX_DISP - 1);
 					L3[index] = MIN(L3[index_L3_prev + d], L3[index_L3_prev + d_sub_1] + P1);
@@ -154,17 +154,17 @@ void SGM::Process()
 		for (int j = 0; j < img_w; j++)
 		{
 			// DP
-			float minL4 = 65535;
+			float minL4 = FLT_MAX;
 			for (int d = 0; d < MAX_DISP; d++)
 			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				if (i == img_h - 1)		//init
 				{
 					L4[index] = cost[index];
 				}
 				else
 				{
-					uint32_t index_L4_prev = (i + 1) * img_w * MAX_DISP + j * MAX_DISP;
+					int index_L4_prev = (i + 1) * img_w * MAX_DISP + j * MAX_DISP;
 					uchar d_sub_1 = MAX(d - 1, 0);
 					uchar d_plus_1 = MIN(d + 1, MAX_DISP - 1);
 					L4[index] = MIN(L4[index_L4_prev + d], L4[index_L4_prev + d_sub_1] + P1);
@@ -192,17 +192,17 @@ void SGM::Process()
 			for (int j = 0; j < img_w; j++)
 			{
 				// DP
-				float minL5 = 65535;
+				float minL5 = FLT_MAX;
 				for (int d = 0; d < MAX_DISP; d++)
 				{
-					uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+					int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 					if (i == 0 || j == 0)		//init
 					{
 						L5[index] = cost[index];
 					}
 					else
 					{
-						uint32_t index_L5_prev = (i - 1) * img_w * MAX_DISP + (j - 1) * MAX_DISP;
+						int index_L5_prev = (i - 1) * img_w * MAX_DISP + (j - 1) * MAX_DISP;
 						uchar d_sub_1 = MAX(d - 1, 0);
 						uchar d_plus_1 = MIN(d + 1, MAX_DISP - 1);
 						L5[index] = MIN(L5[index_L5_prev + d], L5[index_L5_prev + d_sub_1] + P1);
@@ -228,17 +228,17 @@ void SGM::Process()
 			for (int j = img_w - 1; j >=0; j--)
 			{
 				// DP
-				float minL6 = 65535;
+				float minL6 = FLT_MAX;
 				for (int d = 0; d < MAX_DISP; d++)
 				{
-					uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+					int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 					if (i== 0 || j == img_w - 1)		//init
 					{
 						L6[index] = cost[index];
 					}
 					else
 					{
-						uint32_t index_L6_prev = (i - 1) * img_w * MAX_DISP + (j + 1) * MAX_DISP;
+						int index_L6_prev = (i - 1) * img_w * MAX_DISP + (j + 1) * MAX_DISP;
 						uchar d_sub_1 = MAX(d - 1, 0);
 						uchar d_plus_1 = MIN(d + 1, MAX_DISP - 1);
 						L6[index] = MIN(L6[index_L6_prev + d], L6[index_L6_prev + d_sub_1] + P1);
@@ -264,17 +264,17 @@ void SGM::Process()
 			for (int j = 0; j < img_w; j++)
 			{
 				// DP
-				float minL7 = 65535;
+				float minL7 = FLT_MAX;
 				for (int d = 0; d < MAX_DISP; d++)
 				{
-					uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+					int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 					if (i == img_h - 1 || j == 0)		//init
 					{
 						L7[index] = cost[index];
 					}
 					else
 					{
-						uint32_t index_L7_prev = (i + 1) * img_w * MAX_DISP + (j - 1) * MAX_DISP;
+						int index_L7_prev = (i + 1) * img_w * MAX_DISP + (j - 1) * MAX_DISP;
 						uchar d_sub_1 = MAX(d - 1, 0);
 						uchar d_plus_1 = MIN(d + 1, MAX_DISP - 1);
 						L7[index] = MIN(L7[index_L7_prev + d], L7[index_L7_prev + d_sub_1] + P1);
@@ -300,17 +300,17 @@ void SGM::Process()
 			for (int j = img_w - 1; j >=0; j--)
 			{
 				// DP
-				float minL8 = 65535;
+				float minL8 = FLT_MAX;
 				for (int d = 0; d < MAX_DISP; d++)
 				{
-					uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+					int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 					if (i == img_h - 1 || j == img_w - 1)		//init
 					{
 						L8[index] = cost[index];
 					}
 					else
 					{
-						uint32_t index_L8_prev = (i + 1) * img_w * MAX_DISP + (j + 1) * MAX_DISP;
+						int index_L8_prev = (i + 1) * img_w * MAX_DISP + (j + 1) * MAX_DISP;
 						uchar d_sub_1 = MAX(d - 1, 0);
 						uchar d_plus_1 = MIN(d + 1, MAX_DISP - 1);
 						L8[index] = MIN(L8[index_L8_prev + d], L8[index_L8_prev + d_sub_1] + P1);
@@ -332,18 +332,18 @@ void SGM::Process()
 	
 	// cost aggregation
 	uchar *ptr = NULL;
-	float min_cost = 65535, sec_min_cost = 65535;
+	float min_cost = FLT_MAX, sec_min_cost = FLT_MAX;
 	uchar min_d = INVALID_DISP, sec_min_d = INVALID_DISP;
-	for (uint16_t i = 0; i < img_h; i++)
+	for (int i = 0; i < img_h; i++)
 	{
 		ptr = disp.ptr<uchar>(i);
-		for (uint16_t j = 0; j < img_w; j++)
+		for (int j = 0; j < img_w; j++)
 		{
-			min_cost = 65535;
-			for (uchar d = 0; d < MAX_DISP; d++)
+			min_cost = FLT_MAX;
+			for (int d = 0; d < MAX_DISP; d++)
 			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
-				cost[index] = L1[index] + L2[index] + L3[index] + L4[index];
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				cost[index] = 1.2*L1[index] + 1.2*L2[index] + L3[index] + L4[index];  // add horizontal constraint
 				//cost[index] = L1[index];
 				if (USE_8_PATH)
 				{
@@ -358,10 +358,10 @@ void SGM::Process()
 				}
 			}
 			// unique check
-			sec_min_cost = 65535;
-			for (uchar d = 0; d < MAX_DISP; d++)
+			sec_min_cost = FLT_MAX;
+			for (int d = 0; d < MAX_DISP; d++)
 			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				if (cost[index] < sec_min_cost && cost[index] != min_cost)
 				{
 					sec_min_cost = cost[index];

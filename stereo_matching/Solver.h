@@ -4,10 +4,12 @@
 #include "cost.h"
 
 
-const uchar MAX_DISP = 128;
-const uchar INVALID_DISP = MAX_DISP + 1;
-const uchar WIN_H = 7;
-const uchar WIN_W = 9;
+const int MAX_DISP = 128;
+const int INVALID_DISP = MAX_DISP + 1;
+const int WIN_H = 7;
+const int WIN_W = 9;
+const int COST_WIN_H = 5;
+const int COST_WIN_W = 7;
 const float UNIQUE_RATIO = 0.8;
 const bool WEIGHTED_COST = 1;
 
@@ -23,6 +25,8 @@ public:
 	void Build_cost_table();
 	void Build_dsi_from_table();
 	float Find_dsi_mean_max();
+	void cost_horizontal_filter(int win_size);
+	void cost_vertical_filter(int win_size);
 	void Colormap();
 	Mat get_disp() const
 	{
@@ -33,7 +37,7 @@ public:
 protected:
 	Mat ll, rr;
 	Mat disp,  colored_disp;
-	uint16_t img_w, img_h;
+	int img_w, img_h;
 	uint64_t *cost_table_l, *cost_table_r;
 	float *cost;
 	float *weight;

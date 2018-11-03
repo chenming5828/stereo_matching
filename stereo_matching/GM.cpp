@@ -11,18 +11,18 @@ void GM::Process()
 	Build_dsi();
 
 	uchar *ptr = NULL;
-	float min_cost = 65535, sec_min_cost = 65535;
+	float min_cost = FLT_MAX, sec_min_cost = FLT_MAX;
 	uchar min_d = INVALID_DISP, sec_min_d = INVALID_DISP;
-	for (uint16_t i = 0; i < img_h; i++)
+	for (int i = 0; i < img_h; i++)
 	{
 		ptr = disp.ptr<uchar>(i);
-		for (uint16_t j = 0; j < img_w; j++)
+		for (int j = 0; j < img_w; j++)
 		{
-			min_cost = 65535;
+			min_cost = FLT_MAX;
 			min_d = INVALID_DISP;
-			for (uchar d = 0; d < MAX_DISP; d++)
+			for (int d = 0; d < MAX_DISP; d++)
 			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				if (cost[index] < min_cost)
 				{
 					min_cost = cost[index];
@@ -30,10 +30,10 @@ void GM::Process()
 				}
 			}
 			// unique check
-			sec_min_cost = 65535;
-			for (uchar d = 0; d < MAX_DISP; d++)
+			sec_min_cost = FLT_MAX;
+			for (int d = 0; d < MAX_DISP; d++)
 			{
-				uint32_t index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
 				if (cost[index] < sec_min_cost && cost[index] != min_cost)
 				{
 					sec_min_cost = cost[index];

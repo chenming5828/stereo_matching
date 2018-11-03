@@ -5,8 +5,8 @@
 
 int main()
 {
-	Mat ll = imread("example/kitti_0_left.png", IMREAD_GRAYSCALE);
-	Mat rr = imread("example/kitti_0_right.png", IMREAD_GRAYSCALE);
+	Mat ll = imread("example/kitti_1_left.png", IMREAD_GRAYSCALE);
+	Mat rr = imread("example/kitti_1_right.png", IMREAD_GRAYSCALE);
 	std::cout << "rows: " << ll.rows << ", cols: " << ll.cols << std::endl;
 
 	//Solver *sv = new GM(ll, rr);
