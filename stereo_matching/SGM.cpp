@@ -368,7 +368,7 @@ void SGM::Process()
 					sec_min_d = d;
 				}
 			}
-			if (min_cost / sec_min_cost > UNIQUE_RATIO && abs(min_d - sec_min_d) > 2)
+			if (min_cost / sec_min_cost > UNIQUE_RATIO && abs(min_d - sec_min_d) > 1)
 			{
 				ptr[j] = INVALID_DISP;
 			}
@@ -380,9 +380,7 @@ void SGM::Process()
 	}
 	ptr = NULL;
 
-	// speckle_filter
-	uint16_t maxsize = 750, maxdiff = 2;
-	filterSpeckles(disp, INVALID_DISP, maxsize, maxdiff);
+	post_filter();
 }
 
 

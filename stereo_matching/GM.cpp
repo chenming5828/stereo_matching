@@ -51,9 +51,8 @@ void GM::Process()
 		}
 	}
 	ptr = NULL;
-	//// speckle_filter
-	//uint16_t maxsize = 750, maxdiff = 2;
-	//filterSpeckles(disp, INVALID_DISP, maxsize, maxdiff);
+
+	post_filter();
 }
 
 

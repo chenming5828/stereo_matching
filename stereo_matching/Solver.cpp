@@ -215,6 +215,41 @@ void Solver::cost_vertical_filter(int win_size)
 }
 
 
+void Solver::post_filter()
+{
+	// median filter
+	vector<int> v;
+	for (int j = MEDIAN_FILTER_SIZE / 2; j < disp.rows - MEDIAN_FILTER_SIZE / 2; j++)
+	{
+		for (int i = MEDIAN_FILTER_SIZE / 2; i < disp.cols - MEDIAN_FILTER_SIZE / 2; i++)
+		{
+			if (disp.at<uchar>(j, i) != INVALID_DISP)  continue;
+			int valid_cnt = 0;
+			v.clear();
+			for (int m = i-MEDIAN_FILTER_SIZE / 2; m <= i+MEDIAN_FILTER_SIZE / 2; m++)
+			{
+				for (int n = j - MEDIAN_FILTER_SIZE / 2; n <= j + MEDIAN_FILTER_SIZE / 2; n++)
+				{
+					if (disp.at<uchar>(n, m) != INVALID_DISP)
+					{
+						v.push_back(disp.at<uchar>(n, m));
+						valid_cnt++;
+					}
+				}
+			}
+			if (valid_cnt > MEDIAN_FILTER_SIZE * MEDIAN_FILTER_SIZE / 2)
+			{
+				sort(v.begin(), v.end());
+				disp.at<uchar>(j, i) = v[valid_cnt / 2];
+			}
+		}
+	}
+
+	// speckle_filter
+	filterSpeckles(disp, INVALID_DISP, SPECKLE_SIZE, SPECKLE_DIS);
+}
+
+
 void  Solver::Colormap()
 {
 	int disp_value = 0;

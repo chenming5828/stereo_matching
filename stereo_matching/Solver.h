@@ -12,6 +12,9 @@ const int COST_WIN_H = 5;
 const int COST_WIN_W = 7;
 const float UNIQUE_RATIO = 0.8;
 const bool WEIGHTED_COST = 1;
+const int MEDIAN_FILTER_SIZE = 5;
+const int SPECKLE_SIZE = 750;
+const int SPECKLE_DIS = 2;
 
 
 class Solver
@@ -27,6 +30,7 @@ public:
 	float Find_dsi_mean_max();
 	void cost_horizontal_filter(int win_size);
 	void cost_vertical_filter(int win_size);
+	void post_filter();
 	void Colormap();
 	Mat get_disp() const
 	{
