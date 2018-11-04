@@ -5,8 +5,8 @@
 
 int main()
 {
-	Mat ll = imread("example/kitti_0_left.png", IMREAD_GRAYSCALE);
-	Mat rr = imread("example/kitti_0_right.png", IMREAD_GRAYSCALE);
+	Mat ll = imread("example/kitti_1_left.png", IMREAD_GRAYSCALE);
+	Mat rr = imread("example/kitti_1_right.png", IMREAD_GRAYSCALE);
 	printf("rows: %d, cols:%d\n", ll.rows, ll.cols);
 
 	//Solver *sv = new GM(ll, rr);
@@ -23,11 +23,11 @@ int main()
 
 	delete sv;
 
-	Mat ll_rgb = imread("example/left_0.png");
+	Mat ll_rgb = imread("example/left_1.png");
 
 	// read calibration
 	std::ifstream in;
-	in.open("example/calib_0.txt");
+	in.open("example/calib_1.txt");
 	if (!in.is_open()){
 		printf("reading calib file failed\n");
 		std::cin.get();
@@ -140,7 +140,7 @@ int main()
 	// write file for meshlab visualization
 	printf("generating data file ...\n");
 	std::ofstream out;
-	out.open("example/pt_0.txt");
+	out.open("example/pt_1.txt");
 	for (int i = 0; i < disp.rows; i++)
 	{
 		for (int j = 0; j < disp.cols; j++)
