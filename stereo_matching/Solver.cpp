@@ -12,6 +12,7 @@ Solver::Solver(Mat &ll, Mat &rr)
 	img_w = ll.cols;
 	img_h = rr.rows;
 	disp.create(img_h, img_w, CV_8UC1);
+	filtered_disp.create(img_h, img_w, CV_32FC1);
 	colored_disp.create(img_h, img_w, CV_8UC3);
 
 	// dsi
@@ -42,13 +43,13 @@ void Solver::Show_disp()
 	// left border invalid
 	for (int i = 0; i < disp.rows; i++)
 	{
-		uchar *ptr = disp.ptr<uchar>(i);
+		//uchar *ptr = disp.ptr<uchar>(i);
+		float *ptr = filtered_disp.ptr<float>(i);
 		for(int j = 0; j < MAX_DISP; j++)
 		{
 			ptr[j] = INVALID_DISP;
 		}
 	}
-	imwrite("example/disp_grey.png", disp);
 	
 	// convert to RGB for better observation
 	Colormap();	
@@ -215,50 +216,180 @@ void Solver::cost_vertical_filter(int win_size)
 }
 
 
+static void ccl_dfs(int row, int col, Mat &m, bool *visited, int *label, int *area, int label_cnt, int max_dis)
+{
+	visited[row * m.cols + col] = 1;
+
+	if (row > 0 && fabs(m.at<float>(row, col) - m.at<float>(row - 1, col)) < max_dis)
+	{
+		if (!visited[(row - 1) * m.cols + col])
+		{
+			label[(row - 1) * m.cols + col] = label_cnt;
+			++area[label_cnt];
+			//printf("1: %d, %d; ", row-1, col);
+			ccl_dfs(row - 1, col, m, visited, label, area, label_cnt, max_dis);
+		}
+	}
+	if (row < m.rows - 1 && fabs(m.at<float>(row, col) - m.at<float>(row + 1, col)) < max_dis)
+	{
+		if (!visited[(row + 1) * m.cols + col])
+		{
+			label[(row + 1) * m.cols + col] = label_cnt;
+			++area[label_cnt];
+			//printf("2: %d, %d; ", row+1, col);
+			ccl_dfs(row + 1, col, m, visited, label, area, label_cnt, max_dis);
+		}
+	}
+	if (col > 0 && fabs(m.at<float>(row, col) - m.at<float>(row, col - 1)) < max_dis)
+	{
+		if (!visited[row * m.cols + col - 1])
+		{
+			label[row * m.cols + col - 1] = label_cnt;
+			++area[label_cnt];
+			//printf("3: %d, %d; ", row, col-1);
+			ccl_dfs(row, col - 1, m, visited, label, area, label_cnt, max_dis);
+		}
+	}
+	if (col < m.cols - 1 && fabs(m.at<float>(row, col) - m.at<float>(row, col + 1)) < max_dis)
+	{
+		if (!visited[row * m.cols + col + 1])
+		{
+			label[row * m.cols + col + 1] = label_cnt;
+			++area[label_cnt];
+			//printf("4: %d, %d; ", row, col+1);
+			ccl_dfs(row, col + 1, m, visited, label, area, label_cnt, max_dis);
+		}
+	}
+	return;
+}
+
+
+static void speckle_filter(Mat &m, int value, int max_size, int max_dis)
+{
+	bool *visited = new bool[m.rows * m.cols];
+	int *label = new int[m.rows * m.cols];
+	int *area = new int[m.rows * m.cols];
+	for (int i = 0; i < m.rows * m.cols; i++)
+	{
+		visited[i] = 0;
+		label[i] = 0;
+		area[i] = 0;
+	}
+
+	int label_cnt = 0;
+	for (int i = 0; i < m.rows; i++)
+	{
+		for (int j = 0; j < m.cols; j++)
+		{
+			if (visited[i * m.cols + j])  continue;
+
+			label[i*m.cols + j] = ++label_cnt;
+			++area[label_cnt];
+			ccl_dfs(i, j, m, visited, label, area, label_cnt, max_dis);
+		}
+	}
+
+	for (int i = 0; i < m.rows; i++)
+	{
+		for (int j = 0; j < m.cols; j++)
+		{
+			if (area[label[i*m.cols + j]] <= max_size)
+			{
+				m.at<float>(i, j) = value;
+			}
+		}
+	}
+
+	delete[] visited;
+	delete[] label;
+	delete[] area;
+}
+
+
 void Solver::post_filter()
 {
+	// sub-pixel
+#pragma omp parallel for
+	for (int i = 0; i < img_h; i++)
+	{
+		for (int j = 0; j < img_w; j++)
+		{
+			int d = disp.at<uchar>(i, j);
+			if (d > MAX_DISP-1)
+			{
+				filtered_disp.at<float>(i, j) = INVALID_DISP;
+			}
+			else if (!d || d == MAX_DISP - 1)
+			{
+				filtered_disp.at<float>(i, j) = d;
+			}
+			else
+			{
+				int index = i * img_w * MAX_DISP + j * MAX_DISP + d;
+				float cost_d = cost[index];
+				float cost_d_sub = cost[index - 1];
+				float cost_d_plus = cost[index + 1];
+				filtered_disp.at<float>(i, j) = MIN(d + (cost_d_sub - cost_d_plus) / (2 * (cost_d_sub + cost_d_plus - 2 * cost_d)), MAX_DISP-1);
+			}
+		}
+	}
+
 	// median filter
 	vector<int> v;
-	for (int j = MEDIAN_FILTER_SIZE / 2; j < disp.rows - MEDIAN_FILTER_SIZE / 2; j++)
+	for (int i = MEDIAN_FILTER_H / 2; i < filtered_disp.rows - MEDIAN_FILTER_H / 2; i++)
 	{
-		for (int i = MEDIAN_FILTER_SIZE / 2; i < disp.cols - MEDIAN_FILTER_SIZE / 2; i++)
+		for (int j = MEDIAN_FILTER_W / 2; j < filtered_disp.cols - MEDIAN_FILTER_W / 2; j++)
 		{
-			if (disp.at<uchar>(j, i) != INVALID_DISP)  continue;
+			if (filtered_disp.at<float>(i, j) <= MAX_DISP-1)  continue;
 			int valid_cnt = 0;
 			v.clear();
-			for (int m = i-MEDIAN_FILTER_SIZE / 2; m <= i+MEDIAN_FILTER_SIZE / 2; m++)
+			for (int m = i - MEDIAN_FILTER_H / 2; m <= i + MEDIAN_FILTER_H / 2; m++)
 			{
-				for (int n = j - MEDIAN_FILTER_SIZE / 2; n <= j + MEDIAN_FILTER_SIZE / 2; n++)
+				for (int n = j - MEDIAN_FILTER_W / 2; n <= j + MEDIAN_FILTER_W / 2; n++)
 				{
-					if (disp.at<uchar>(n, m) != INVALID_DISP)
+					if (filtered_disp.at<float>(m, n) <= MAX_DISP - 1)
 					{
-						v.push_back(disp.at<uchar>(n, m));
+						v.push_back(filtered_disp.at<float>(m, n));
 						valid_cnt++;
 					}
 				}
 			}
-			if (valid_cnt > MEDIAN_FILTER_SIZE * MEDIAN_FILTER_SIZE / 2)
+			if (valid_cnt > MEDIAN_FILTER_W * MEDIAN_FILTER_H / 2)
 			{
 				sort(v.begin(), v.end());
-				disp.at<uchar>(j, i) = v[valid_cnt / 2];
+				filtered_disp.at<float>(i, j) = v[valid_cnt / 2];
 			}
 		}
 	}
 
 	// speckle_filter
-	filterSpeckles(disp, INVALID_DISP, SPECKLE_SIZE, SPECKLE_DIS);
+	speckle_filter(filtered_disp, INVALID_DISP, SPECKLE_SIZE, SPECKLE_DIS);
+
+	/*
+	for (int i = 0; i < img_h; i++)
+	{
+		for (int j = 0; j < img_w; j++)
+		{
+			int d = disp.at<uchar>(i, j);
+			float d_ = filtered_disp.at<float>(i, j);
+			printf("%d -> %f, ", d, d_);
+		}
+		printf("\n");
+	}
+	*/
 }
 
 
 void  Solver::Colormap()
 {
-	int disp_value = 0;
+	float disp_value = 0;
 	for (int i = 0; i < disp.rows; i++)
 	{
 		for (int j = 0; j < disp.cols; j++)
 		{
-			disp_value = disp.at<uchar>(i, j);
-			if (disp_value == INVALID_DISP)
+			disp_value = filtered_disp.at<float>(i, j);
+			//disp_value = disp.at<uchar>(i, j);
+			if (disp_value > MAX_DISP - 1)
 			{
 				colored_disp.at<Vec3b>(i, j)[0] = 0;
 				colored_disp.at<Vec3b>(i, j)[1] = 0;

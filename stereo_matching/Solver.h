@@ -12,8 +12,9 @@ const int COST_WIN_H = 5;
 const int COST_WIN_W = 7;
 const float UNIQUE_RATIO = 0.8;
 const bool WEIGHTED_COST = 1;
-const int MEDIAN_FILTER_SIZE = 5;
-const int SPECKLE_SIZE = 750;
+const int MEDIAN_FILTER_H = 3;
+const int MEDIAN_FILTER_W = 5;
+const int SPECKLE_SIZE = 1000;
 const int SPECKLE_DIS = 2;
 
 
@@ -34,13 +35,13 @@ public:
 	void Colormap();
 	Mat get_disp() const
 	{
-		return disp;
+		return filtered_disp;
 	}
 	virtual ~Solver();
 
 protected:
 	Mat ll, rr;
-	Mat disp,  colored_disp;
+	Mat disp,  filtered_disp, colored_disp;
 	int img_w, img_h;
 	uint64_t *cost_table_l, *cost_table_r;
 	float *cost;
