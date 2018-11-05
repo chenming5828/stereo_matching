@@ -34,8 +34,11 @@ void SGM::Process()
 	//Build_dsi();
 	//Find_dsi_mean_max();
 
-	Build_cost_table();
-	Build_dsi_from_table();
+	//Build_cost_table();
+	//Build_dsi_from_table();
+	//Find_table_mean_max();
+	//Find_dsi_mean_max();
+
 	cost_horizontal_filter(COST_WIN_W);
 	cost_vertical_filter(COST_WIN_H);
 

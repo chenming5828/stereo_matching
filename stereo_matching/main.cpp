@@ -2,27 +2,39 @@
 #include "GM.h"
 #include "SGM.h"
 #include "utils.h"
+#include "gpu_inc\SGM.cuh"
+#include "gpu_inc\cost.cuh"
+
 
 int main()
 {
 	Mat ll = imread("example/kitti_1_left.png", IMREAD_GRAYSCALE);
 	Mat rr = imread("example/kitti_1_right.png", IMREAD_GRAYSCALE);
+	resize(ll, ll, Size(1240, 360));
+	resize(rr, rr, Size(1240, 360));
 	printf("rows: %d, cols:%d\n", ll.rows, ll.cols);
+		
+	GPU_SGM gpu_solver;
+	Mat disp;
+	float *cost = new float[1240 * 360 * MAX_DISP];
+	memset(cost, 0, 1240 * 360 * MAX_DISP * sizeof(float));
 
-	//Solver *sv = new GM(ll, rr);
 	Solver *sv = new SGM(ll, rr);
 
 	printf("waiting ...\n");
 	double be = get_cur_ms();
+	gpu_solver.Process(ll, rr, disp, cost);
+	sv->fetch_cost(cost);
 	sv->Process();
 	double en = get_cur_ms();
 	printf("done ...\n");
 	printf("time cost: %lf ms\n", en - be);
 	sv->Show_disp();
-	Mat disp = sv->get_disp();
+	//Mat disp = sv->get_disp();
 
 	delete sv;
 
+	/*
 	Mat ll_rgb = imread("example/left_1.png");
 
 	// read calibration
@@ -162,6 +174,7 @@ int main()
 			}
 		}
 	}
+	*/
 	
 	//std::cin.get();
 	return 0;

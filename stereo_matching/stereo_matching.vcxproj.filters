@@ -54,4 +54,10 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="gpu_inc\cost.cuh" />
+    <CudaCompile Include="gpu_src\cost.cu" />
+    <CudaCompile Include="gpu_src\SGM.cu" />
+    <CudaCompile Include="gpu_inc\SGM.cuh" />
+  </ItemGroup>
 </Project>

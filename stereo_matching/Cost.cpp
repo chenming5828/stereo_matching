@@ -4,7 +4,7 @@
 float SAD(Mat &ll, Mat &rr, Point l_pt, int disp, int win_h, int win_w, float* weight)
 {
 	uchar *ll_ptr = NULL, *rr_ptr = NULL;
-	uint16_t y = 0, x_l = 0, x_r = 0;
+	int y = 0, x_l = 0, x_r = 0;
 	float cost = 0;
 	for (int i = -win_h / 2; i <= win_h/2; i++)
 	{
@@ -35,7 +35,7 @@ float SAD(Mat &ll, Mat &rr, Point l_pt, int disp, int win_h, int win_w, float* w
 float SSD(Mat &ll, Mat &rr, Point l_pt, int disp, int win_h, int win_w, float* weight)
 {
 	uchar *ll_ptr = NULL, *rr_ptr = NULL;
-	uint16_t y = 0, x_l = 0, x_r = 0;
+	int y = 0, x_l = 0, x_r = 0;
 	float cost = 0;
 	for (int i = -win_h / 2; i <= win_h / 2; i++)
 	{
@@ -98,30 +98,32 @@ int CT(Mat &ll, Mat &rr, Point l_pt, int disp, int win_h, int win_w, float* weig
 }
 
 
-uint64_t CT_pts(Mat &im, int u, int v, int win_h, int win_w, float* weight)
+void CT_pts(Mat &ll, Mat &rr, int u, int v, int win_h, int win_w, float* weight,
+                      uint64_t *cost_table_l, uint64_t *cost_table_r)
 {
-	uchar *ptr = NULL;
-	uint16_t y = 0, x = 0;
-	uint64_t value = 0;
+	uint64_t value_l = 0, value_r = 0;
 
-	uchar ctr_pixel = im.at<uchar>(v,u);
+	uchar ctr_pixel_l = ll.at<uchar>(v, u);
+	uchar ctr_pixel_r = rr.at<uchar>(v, u);
 
 	for (int i = -win_h / 2; i <= win_h / 2; i++)
 	{
-		y = MAX(v + i, 0);		// check border
-		y = MIN(y, im.rows - 1);
-		ptr = im.ptr<uchar>(y);
+		int y = MAX(v + i, 0);		// check border
+		y = MIN(y, ll.rows - 1);
 		for (int j = -win_w / 2; j <= win_w / 2; j++)
 		{
+			if (i == 0 && j == 0)
+				continue;
 			if (WEIGHTED_COST && weight[(i + win_h / 2) * win_w + (j + win_w / 2)] < 0.5)
 				continue;
-			x = MAX(u + j, 0);
-			x = MIN(x, im.cols - 1);
-			value = (value | (ptr[x] > ctr_pixel)) << 1;
+			int x = MAX(u + j, 0);
+			x = MIN(x, ll.cols - 1);
+			value_l = (value_l | (ll.at<uchar>(y, x) > ctr_pixel_l)) << 1;
+			value_r = (value_r | (rr.at<uchar>(y, x) > ctr_pixel_r)) << 1;
 		}
 	}
-	ptr = NULL;
-	return value;
+	cost_table_l[v*ll.cols + u] = value_l;
+	cost_table_r[v*ll.cols + u] = value_r;
 }
 
 

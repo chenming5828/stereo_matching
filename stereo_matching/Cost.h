@@ -10,4 +10,5 @@ float SSD(Mat &ll, Mat &rr, Point l_pt, int disp, int win_h, int win_w, float* w
 int CT(Mat &ll, Mat &rr, Point l_pt, int disp, int win_h, int win_w, float* weight);
 int hamming_cost(uint64_t ct_l, uint64_t ct_r);
 
-uint64_t CT_pts(Mat &im, int u, int v, int win_h, int win_w, float* weight);
+void CT_pts(Mat &ll, Mat &rr, int u, int v, int win_h, int win_w, float* weight,
+	                  uint64_t *cost_table_l, uint64_t *cost_table_r);

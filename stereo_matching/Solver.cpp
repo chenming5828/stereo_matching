@@ -106,8 +106,7 @@ void Solver::Build_cost_table()
 	{
 		for (int j = 0; j < img_w; j++)
 		{
-			cost_table_l[i*img_w + j] = CT_pts(ll, j, i, WIN_H, WIN_W, weight);
-			cost_table_r[i*img_w + j] = CT_pts(rr, j, i, WIN_H, WIN_W, weight);
+			CT_pts(ll, rr, j, i, WIN_H, WIN_W, weight, cost_table_l, cost_table_r);
 		}
 	}
 }
@@ -134,7 +133,7 @@ void Solver::Build_dsi_from_table()
 
 float Solver::Find_dsi_mean_max()
 {
-	double mean_cost = 0, max_cost = 0;
+	double max_cost = 0, mean_cost = 0;
 	for (int i = 0; i < img_h; i++)
 	{
 		for (int j = 0; j < img_w; j++)
@@ -151,7 +150,28 @@ float Solver::Find_dsi_mean_max()
 		}
 	}
 	mean_cost /= (img_h * img_w * MAX_DISP);
-	std::cout << "max_cost: " << max_cost << ", mean_cost: " << mean_cost << std::endl;
+	printf("max_cost: %lf, mean_cost: %lf\n", max_cost, mean_cost);
+	return mean_cost;
+}
+
+
+float Solver::Find_table_mean_max()
+{
+	double max_cost = 0, mean_cost = 0;
+	for (int i = 0; i < img_h; i++)
+	{
+		for (int j = 0; j < img_w; j++)
+		{
+			int index = i * img_w + j;
+			mean_cost += cost_table_r[index];
+			if (cost_table_r[index] > max_cost)
+			{
+				max_cost = cost_table_r[index];
+			}
+		}
+	}
+	mean_cost /= (img_h * img_w * MAX_DISP);
+	printf("max_cost: %lf, mean_cost: %lf\n", max_cost, mean_cost);
 	return mean_cost;
 }
 
@@ -213,6 +233,12 @@ void Solver::cost_vertical_filter(int win_size)
 			}
 		}
 	}
+}
+
+
+void Solver::fetch_cost(float *p)
+{
+	memcpy(cost, p, img_h * img_w * MAX_DISP * sizeof(float));
 }
 
 
@@ -363,7 +389,8 @@ void Solver::post_filter()
 	}
 
 	// speckle_filter
-	speckle_filter(filtered_disp, INVALID_DISP, SPECKLE_SIZE, SPECKLE_DIS);
+	//speckle_filter(filtered_disp, INVALID_DISP, SPECKLE_SIZE, SPECKLE_DIS);
+	filterSpeckles(disp, INVALID_DISP, SPECKLE_SIZE, SPECKLE_DIS);
 
 	/*
 	for (int i = 0; i < img_h; i++)
@@ -387,8 +414,8 @@ void  Solver::Colormap()
 	{
 		for (int j = 0; j < disp.cols; j++)
 		{
-			disp_value = filtered_disp.at<float>(i, j);
-			//disp_value = disp.at<uchar>(i, j);
+			//disp_value = filtered_disp.at<float>(i, j);
+			disp_value = disp.at<uchar>(i, j);
 			if (disp_value > MAX_DISP - 1)
 			{
 				colored_disp.at<Vec3b>(i, j)[0] = 0;
